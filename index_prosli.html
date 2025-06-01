@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <title>Vizualizacija igrača</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body { font-family: Arial; margin: 30px; }
+    .bar { fill: steelblue; }
+    .bar:hover { fill: orange; }
+    select { padding: 5px; margin-bottom: 20px; }
+    svg { margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+<h2>Top 10 igrača po atributu</h2>
+<select id="attribute">
+  <option value="Pace/Diving">Pace/Diving</option>
+  <option value="Shooting/Handling">Shooting/Handling</option>
+  <option value="Passing/Kicking">Passing/Kicking</option>
+  <option value="Dribbling/Reflexes">Dribbling/Reflexes</option>
+  <option value="Defending/Pace">Defending/Pace</option>
+  <option value="Physical/Positioning">Physical/Positioning</option>
+</select>
+
+<svg width="900" height="500"></svg>
+
+<script>
+  const svg = d3.select("svg");
+  const margin = { top: 40, right: 20, bottom: 70, left: 60 };
+  const width = +svg.attr("width") - margin.left - margin.right;
+  const height = +svg.attr("height") - margin.top - margin.bottom;
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  d3.csv("all_fifa_players.csv").then(data => {
+    const attributes = ["Pace/Diving", "Shooting/Handling", "Passing/Kicking", "Dribbling/Reflexes", "Defending/Pace", "Physical/Positioning"];
+    attributes.forEach(attr => {
+      data.forEach(d => { d[attr] = +d[attr] || 0; });
+    });
+
+    function draw(attr) {
+      const top = data.sort((a, b) => b[attr] - a[attr]).slice(0, 10);
+      const x = d3.scaleBand().domain(top.map(d => d.Player)).range([0, width]).padding(0.3);
+      const y = d3.scaleLinear().domain([0, d3.max(top, d => d[attr])]).range([height, 0]);
+
+      g.selectAll("*").remove();
+      g.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x))
+        .selectAll("text").attr("transform", "rotate(-40)").style("text-anchor", "end");
+      g.append("g").call(d3.axisLeft(y));
+
+      g.selectAll(".bar")
+        .data(top)
+        .enter()
+        .append("rect")
+        .attr("class", "bar")
+        .attr("x", d => x(d.Player))
+        .attr("y", d => y(d[attr]))
+        .attr("width", x.bandwidth())
+        .attr("height", d => height - y(d[attr]))
+        .append("title")
+        .text(d => `${d.Player}: ${d[attr]}`);
+    }
+
+    draw("Pace/Diving");
+    document.getElementById("attribute").addEventListener("change", e => draw(e.target.value));
+  });
+</script>
+
+</body>
+</html>

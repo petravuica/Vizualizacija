@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FIFA Scouting Viz</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <script src="charts/barChart.js"></script>
+<script src="charts/boxPlot.js"></script>
+<script src="charts/scatterPlot.js"></script>
+<script src="charts/donutChart.js"></script>
+<script src="charts/worldMap.js"></script>
+
+
+
+</head>
+<body>
+  <h1>FIFA Scouting Vizualizacija</h1>
+   <div id="filters">
+    <label>Pozicija:
+      <select id="positionFilter"></select>
+    </label>
+
+    <label>Liga:
+      <select id="leagueFilter"></select>
+    </label>
+
+    <label>Starost:
+      <input type="range" id="ageFilter" min="16" max="45" value="45">
+      <span id="ageValue">45</span>
+    </label>
+
+    <label>Budžet (vrijednost):
+      <input type="range" id="valueFilter" min="0" max="100000000" step="1000000" value="100000000">
+      <span id="valueValue">100M</span>
+    </label>
+
+    <label>Minimalni potencijal:
+      <input type="range" id="potentialFilter" min="50" max="99" value="99">
+      <span id="potentialValue">99</span>
+    </label>
+  </div>
+
+  <div id="viz"></div>
+
+  <div id="charts">
+
+  <div class="chart-container">
+    <h2>Top 10 Igrača po Overall Ocjeni</h2>
+    <svg id="barChart" width="500" height="400"></svg>
+  </div>
+
+  <div class="chart-container">
+    <h2>Distribucija Vrijednosti po Poziciji (Boxplot)</h2>
+    <svg id="boxPlot" width="500" height="400"></svg>
+  </div>
+
+  <div class="chart-container">
+    <h2>Vrijednost vs. Overall Ocjena (Scatter Plot)</h2>
+    <svg id="scatterPlot" width="500" height="400"></svg>
+  </div>
+  <div class="chart-container">
+  <h2>Udio Igrača po Poziciji (Donut Chart)</h2>
+  <svg id="donutChart" width="400" height="400"></svg>
+</div>
+<div class="chart-container">
+  <h2>Geografska Projekcija – Klikni na Zemlju</h2>
+  <svg id="worldMap" width="800" height="500"></svg>
+</div>
+
+
+</div>
+<!-- Ovde prikazujemo lige -->
+<div id="countryLeagues"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>

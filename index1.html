@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <title>Vizualizacija igrača</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body { font-family: Arial; margin: 30px; }
+    .bar { fill: steelblue; }
+    .bar:hover { fill: orange; }
+    select { padding: 5px; margin-bottom: 20px; }
+    svg { margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+<h2>Top 10 igrača po atributu</h2>
+<select id="attribute">
+  <option value="Pace/Diving">Pace/Diving</option>
+  <option value="Shooting/Handling">Shooting/Handling</option>
+  <option value="Passing/Kicking">Passing/Kicking</option>
+  <option value="Dribbling/Reflexes">Dribbling/Reflexes</option>
+  <option value="Defending/Pace">Defending/Pace</option>
+  <option value="Physical/Positioning">Physical/Positioning</option>
+</select>
+
+<svg width="900" height="500"></svg>
+
+<script>
+  const svg = d3.select("svg");
+  const margin = { top: 40, right: 20, bottom: 70, left: 60 };
+  const width = +svg.attr("width") - margin.left - margin.right;
+  const height = +svg.attr("height") - margin.top - margin.bottom;
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  function parseMoney(value) {
+  if (!value || value === "-" || value === "NaN") return 0;
+
+  value = value.replace("€", "").trim(); // ukloni €
+  let multiplier = 1;
+
+  if (value.includes("M")) {
+    multiplier = 1_000_000;
+    value = value.replace("M", "");
+  } else if (value.includes("K")) {
+    multiplier = 1_000;
+    value = value.replace("K", "");
+  }
+
+  const numeric = parseFloat(value);
+  return isNaN(numeric) ? 0 : numeric * multiplier;
+}
+d3.csv("all_fifa_players.csv").then(data => {
+  data.forEach(d => {
+    d.Value = parseMoney(d.Value);
+    d.Wage = parseMoney(d.Wage);
+    d["Release Clause"] = parseMoney(d["Release Clause"]);
+
+    // Primer: možeš konvertovati i druge kolone u broj
+    d.Age = +d.Age || 0;
+    d.Overall = +d.Overall || 0;
+  });
+
+   console.log(data.slice(0, 5)); 
+});
+
+</script>
+
+</body>
+</html>
