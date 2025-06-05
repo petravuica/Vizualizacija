@@ -22,17 +22,22 @@ function drawDonutChart(data) {
     .value(d => d[1]);
 
   const arc = d3.arc()
-    .innerRadius(radius * 0.5) // donut!
+    .innerRadius(radius * 0.5)
     .outerRadius(radius - 10);
+
+  const arcHover = d3.arc()
+    .innerRadius(radius * 0.5)
+    .outerRadius(radius - 2); // malo veći pri hoveru
 
   const arcs = g.selectAll(".arc")
     .data(pie(Array.from(positionCounts)))
     .enter().append("g")
     .attr("class", "arc");
 
+  // Dodaj sektore s animacijom
   arcs.append("path")
-    .attr("d", arc)
     .attr("fill", d => color(d.data[0]))
+    .attr("cursor", "pointer")
     .transition()
     .duration(1000)
     .attrTween("d", function(d) {
@@ -40,7 +45,20 @@ function drawDonutChart(data) {
       return t => arc(i(t));
     });
 
-  // Dodaj oznake (legende)
+  //  hover efekt
+  arcs.select("path")
+    .on("mouseover", function(event, d) {
+      d3.select(this)
+        .transition().duration(200)
+        .attr("d", arcHover(d));
+    })
+    .on("mouseout", function(event, d) {
+      d3.select(this)
+        .transition().duration(200)
+        .attr("d", arc(d));
+    });
+
+  // Tooltip
   arcs.append("title")
     .text(d => `${d.data[0]}: ${d.data[1]} igrača`);
 }

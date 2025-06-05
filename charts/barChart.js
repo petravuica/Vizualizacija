@@ -20,6 +20,7 @@ function drawBarChart(data) {
     .range([margin.top, height - margin.bottom])
     .padding(0.1);
 
+  // Animirani ulazak + hover efekti
   svg.append("g")
     .selectAll("rect")
     .data(topPlayers)
@@ -27,14 +28,29 @@ function drawBarChart(data) {
     .append("rect")
     .attr("x", x(0))
     .attr("y", d => y(d.Player))
-    .attr("width", d => x(d.Overall) - x(0))
     .attr("height", y.bandwidth())
-    .attr("fill", "steelblue");
+    .attr("width", 0) // Start from 0
+    .attr("fill", "steelblue")
+    .on("mouseover", function () {
+      d3.select(this)
+        .transition().duration(200)
+        .style("fill", "#ff9933");
+    })
+    .on("mouseout", function () {
+      d3.select(this)
+        .transition().duration(200)
+        .style("fill", "steelblue");
+    })
+    .transition()
+    .duration(800)
+    .attr("width", d => x(d.Overall) - x(0)); // Animate width
 
+  // y os (imena igrača)
   svg.append("g")
     .call(d3.axisLeft(y))
     .attr("transform", `translate(${margin.left},0)`);
 
+  // x os 
   svg.append("g")
     .call(d3.axisBottom(x))
     .attr("transform", `translate(0,${height - margin.bottom})`);

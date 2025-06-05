@@ -16,22 +16,44 @@ function drawScatterPlot(data) {
     .domain([d3.min(filtered, d => d.Overall), d3.max(filtered, d => d.Overall)])
     .range([height - margin.bottom, margin.top]);
 
-  svg.selectAll("circle")
+
+  const circles = svg.selectAll("circle")
     .data(filtered)
     .enter()
     .append("circle")
     .attr("cx", d => x(d.Value))
     .attr("cy", d => y(d.Overall))
-    .attr("r", 4)
+    .attr("r", 0) 
     .attr("fill", "steelblue")
     .attr("opacity", 0.6)
-    .append("title")
+    .on("mouseover", function () {
+      d3.select(this)
+        .transition().duration(200)
+        .attr("r", 8)
+        .attr("fill", "#ff6600");
+    })
+    .on("mouseout", function () {
+      d3.select(this)
+        .transition().duration(200)
+        .attr("r", 4)
+        .attr("fill", "steelblue");
+    });
+
+  // Dodaj tooltip prije animacije
+  circles.append("title")
     .text(d => `${d.Player}: €${d.Value}, Overall: ${d.Overall}`);
 
+  // Animacija ulaska
+  circles.transition()
+    .duration(600)
+    .attr("r", 4);
+
+  // x os
   svg.append("g")
     .call(d3.axisBottom(x))
     .attr("transform", `translate(0,${height - margin.bottom})`);
 
+  // y os
   svg.append("g")
     .call(d3.axisLeft(y))
     .attr("transform", `translate(${margin.left},0)`);
