@@ -5,36 +5,30 @@ function drawDonutChart(data) {
   const width = +svg.attr("width");
   const height = +svg.attr("height");
   const radius = Math.min(width, height) / 2;
-  const color = d3.scaleOrdinal(d3.schemeCategory10);
 
+  // ✅ Ljepše boje
+  const color = d3.scaleOrdinal(d3.schemeSet2);
+
+  // Tooltip kontejner (osiguraj da postoji <div id="tooltip"> u index.html)
+  const tooltip = d3.select("#tooltip");
+
+  // Glavna grupa
   const g = svg.append("g")
     .attr("transform", `translate(${width / 2}, ${height / 2})`);
 
-  // Broj igrača po poziciji
-  const positionCounts = d3.rollup(
-    data,
-    v => v.length,
-    d => d.Position
-  );
-
-  const pie = d3.pie()
-    .sort(null)
-    .value(d => d[1]);
-
-  const arc = d3.arc()
-    .innerRadius(radius * 0.5)
-    .outerRadius(radius - 10);
-
-  const arcHover = d3.arc()
-    .innerRadius(radius * 0.5)
-    .outerRadius(radius - 2); // malo veći pri hoveru
+  // Grupiraj po poziciji
+  const positionCounts = d3.rollup(data, v => v.length, d => d.Position);
+  const pie = d3.pie().sort(null).value(d => d[1]);
+  const arc = d3.arc().innerRadius(radius * 0.5).outerRadius(radius - 10);
+  const arcHover = d3.arc().innerRadius(radius * 0.5).outerRadius(radius);
 
   const arcs = g.selectAll(".arc")
     .data(pie(Array.from(positionCounts)))
-    .enter().append("g")
+    .enter()
+    .append("g")
     .attr("class", "arc");
 
-  // Dodaj sektore s animacijom
+  // Prstenasti graf sa animacijom
   arcs.append("path")
     .attr("fill", d => color(d.data[0]))
     .attr("cursor", "pointer")
@@ -45,20 +39,53 @@ function drawDonutChart(data) {
       return t => arc(i(t));
     });
 
-  //  hover efekt
+  // Hover efekti i tooltip
   arcs.select("path")
     .on("mouseover", function(event, d) {
       d3.select(this)
         .transition().duration(200)
         .attr("d", arcHover(d));
+
+      tooltip
+        .style("display", "block")
+        .html(`<strong>${d.data[0]}</strong>: ${d.data[1]} igrača`);
+    })
+    .on("mousemove", function(event) {
+      tooltip
+        .style("left", (event.pageX + 10) + "px")
+        .style("top", (event.pageY - 28) + "px");
     })
     .on("mouseout", function(event, d) {
       d3.select(this)
         .transition().duration(200)
         .attr("d", arc(d));
+      tooltip.style("display", "none");
     });
+/*
+  // Legenda
+  const legend = svg.append("g")
+    .attr("transform", `translate(10, 10)`);
 
-  // Tooltip
-  arcs.append("title")
-    .text(d => `${d.data[0]}: ${d.data[1]} igrača`);
+  const keys = Array.from(positionCounts.keys());
+
+  legend.selectAll("rect")
+    .data(keys)
+    .enter()
+    .append("rect")
+    .attr("x", width - 150)
+    .attr("y", (d, i) => i * 20)
+    .attr("width", 12)
+    .attr("height", 12)
+    .attr("fill", d => color(d));
+
+  legend.selectAll("text")
+    .data(keys)
+    .enter()
+    .append("text")
+    .attr("x", width - 130)
+    .attr("y", (d, i) => i * 20 + 10)
+    .text(d => d)
+    .style("font-size", "12px")
+    .attr("alignment-baseline", "middle");
+    */
 }

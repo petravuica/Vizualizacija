@@ -10,6 +10,8 @@
 <script src="charts/scatterPlot.js"></script>
 <script src="charts/donutChart.js"></script>
 <script src="charts/worldMap.js"></script>
+<script src="charts/radarChart.js"></script>
+
 
 
 
@@ -64,14 +66,35 @@
   <svg id="donutChart" width="400" height="400"></svg>
 </div>
 <div class="chart-container">
+  <h2>Radar graf</h2>
+  <svg id="radarChart" width="400" height="400"></svg>
+   <p id="radarPositionLabel" style="text-align: center; font-weight: bold; margin-top: 0.5rem;"></p>
+</div>
+
+<div class="chart-container">
   <h2>Geografska Projekcija – Klikni na Zemlju</h2>
   <svg id="worldMap" width="800" height="500"></svg>
 </div>
 
 
+
+
 </div>
 <!-- Ovde prikazujemo lige -->
 <div id="countryLeagues"></div>
+
+<div id="tooltip" style="
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 6px;
+  border-radius: 4px;
+  pointer-events: none;
+  font-size: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  display: none;
+  z-index: 999;
+"></div>
 
   <script src="script.js"></script>
 </body>
