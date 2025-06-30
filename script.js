@@ -13,7 +13,38 @@ function parseMoney(value) {
   return isNaN(numeric) ? 0 : numeric * multiplier;
 }
 
+// GLOBALNI render
+window.render = function(players) {
+  drawBarChart(players);
+  drawBoxPlot(players);
+  drawScatterPlot(players);
+  drawDonutChart(players);
+  drawRadarChart(players);
+};
+
+// GLOBALNI update
+window.update = function() {
+  const selectedPosition = d3.select("#positionFilter").property("value");
+  const selectedLeague = d3.select("#leagueFilter").property("value");
+  const maxAge = +d3.select("#ageFilter").property("value");
+  const maxValue = +d3.select("#valueFilter").property("value");
+  const minPotential = +d3.select("#potentialFilter").property("value");
+
+  const filtered = window.allData.filter(d =>
+    (selectedPosition === "SVE" || d.Position === selectedPosition) &&
+    (selectedLeague === "SVE" || d.League === selectedLeague) &&
+    d.Age <= maxAge &&
+    d.Value <= maxValue &&
+    d.Potential >= minPotential
+  );
+
+  window.render(filtered);
+};
+
 d3.csv("all_fifa_players.csv").then(data => {
+  // Globalno spremi podatke
+  window.allData = data;
+
   data.forEach(d => {
     d.Value = parseMoney(d.Value);
     d.Wage = parseMoney(d.Wage);
@@ -21,7 +52,7 @@ d3.csv("all_fifa_players.csv").then(data => {
     d.Age = +d.Age || 0;
     d.Overall = +d["Overall Score"] || 0;
     d.Potential = +d["Potential Score"] || 0;
-    d.Position = d.Position?.split(",")[0]; // uzmi glavnu poziciju
+    d.Position = d.Position?.split(",")[0];
   });
 
   // Populate dropdowns
@@ -42,24 +73,22 @@ d3.csv("all_fifa_players.csv").then(data => {
     .append("option")
     .text(d => d);
 
-  // Update range label values
   d3.select("#ageFilter").on("input", function() {
     d3.select("#ageValue").text(this.value);
-    update();
+    window.update();
   });
 
   d3.select("#valueFilter").on("input", function() {
     d3.select("#valueValue").text(formatMoney(this.value));
-    update();
+    window.update();
   });
 
   d3.select("#potentialFilter").on("input", function() {
     d3.select("#potentialValue").text(this.value);
-    update();
+    window.update();
   });
 
-  // Dropdown change events
-  d3.selectAll("select").on("change", update);
+  d3.selectAll("select").on("change", window.update);
 
   function formatMoney(val) {
     val = +val;
@@ -68,53 +97,7 @@ d3.csv("all_fifa_players.csv").then(data => {
            val;
   }
 
-  function update() {
-    const selectedPosition = d3.select("#positionFilter").property("value");
-    const selectedLeague = d3.select("#leagueFilter").property("value");
-    const maxAge = +d3.select("#ageFilter").property("value");
-    const maxValue = +d3.select("#valueFilter").property("value");
-    const minPotential = +d3.select("#potentialFilter").property("value");
-
-    const filtered = data.filter(d =>
-      (selectedPosition === "SVE" || d.Position === selectedPosition) &&
-      (selectedLeague === "SVE" || d.League === selectedLeague) &&
-      d.Age <= maxAge &&
-      d.Value <= maxValue &&
-      d.Potential >= minPotential
-    );
-
-    render(filtered);
-  }
-
-  // Privremeno: prikaži listu imena kao test
-  function render(players) {
-    const container = d3.select("#viz");
-    container.html(""); // očisti prethodni prikaz
-
-    container.selectAll("div.player")
-      .data(players.slice(0, 10)) // ograniči na 10 za test
-      .enter()
-      .append("div")
-      .attr("class", "player")
-      .style("padding", "10px")
-      .style("margin", "5px")
-      .style("background", "#fff")
-      .style("border-radius", "8px")
-      .style("box-shadow", "0 0 5px rgba(0,0,0,0.1)")
-      .text(d => `${d.Player} (${d.Position}) – ${formatMoney(d.Value)} €`);
-  }
-
-  update(); // početni prikaz
-
-  // Pozovi grafove nakon filtriranja
-function render(players) {
-  drawBarChart(players);
-  drawBoxPlot(players);
-  drawScatterPlot(players);
-  drawDonutChart(players);
+  // Prvi prikaz
+  window.update();
   drawWorldMap(data);
-
-
-}
-
 });

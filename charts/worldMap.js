@@ -11,14 +11,34 @@ function showLeaguesForCountry(country, data) {
   const uniqueLeagues = [...new Set(leagues)];
 
   const container = d3.select("#countryLeagues");
-  container.html(""); // očisti prethodno
+  container.html(""); // očisti prethodni sadržaj
 
   if (uniqueLeagues.length === 0) {
     container.append("p").text(`Nema liga za ${country}.`);
   } else {
     container.append("h3").text(`Lige u zemlji: ${country}`);
     const ul = container.append("ul");
-    uniqueLeagues.forEach(l => ul.append("li").text(l));
+
+    uniqueLeagues.forEach(liga => {
+      ul.append("li")
+        .style("cursor", "pointer")
+        .style("margin", "4px 0")
+        .style("color", "#007BFF")
+        .on("click", function() {
+          // Kada klikneš ligu, resetiraj poziciju i postavi ligu
+          d3.select("#positionFilter").property("value", "SVE");
+          d3.select("#leagueFilter").property("value", liga);
+          update();
+        })
+        .text(liga);
+    });
+
+    // Ako postoji samo jedna liga, automatski filtriraj
+    if (uniqueLeagues.length === 1) {
+      d3.select("#positionFilter").property("value", "SVE");
+      d3.select("#leagueFilter").property("value", uniqueLeagues[0]);
+      update();
+    }
   }
 }
 
@@ -93,10 +113,10 @@ function zoomToCountry(d, path) {
     .duration(750)
     .attr("transform", `translate(${translate}) scale(${scale})`);
 }
+
 function resetZoom() {
   d3.select("#mapGroup")
     .transition()
     .duration(1000)
     .attr("transform", `translate(0,0) scale(1)`);
 }
-

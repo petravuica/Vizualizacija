@@ -23,7 +23,7 @@ function drawBarChart(data) {
 
   const color = d3.scaleOrdinal()
     .domain(topPlayers.map(d => d.Player))
-    .range(d3.schemeSet2); // ili d3.schemeCategory10
+    .range(d3.schemeSet2); // moze i d3.schemeCategory10
 
   const tooltip = d3.select("#tooltip");
 
